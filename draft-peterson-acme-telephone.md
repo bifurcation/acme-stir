@@ -86,10 +86,9 @@ Authorization List certificate extension of {{I-D.ietf-stir-certificates}}.
 
   "challenges": [
     {
-      "type": "sms-00",
+      "type": "sms-link-00",
       "status": "valid",
       "validated": "2014-12-01T12:05:00Z",
-      "keyAuthorization": "SXQe-2XODaDxNR...vb29HhjjLPSggwiE"
     }
   ]
 }
@@ -128,58 +127,60 @@ because of the diverse capabilities of the devices involved, different schemes
 for refreshing the challenge, ones that require less direct user supervision,
 may be available to some devices and not others.
 
-## Telephone Number Routability Validation {#route}
+## Web-Based Telephone Number Routability Validation {#route}
 
-With basic telephone number routability validation, the client in an ACME
+With web-based telephone number routability validation, the client in an ACME
 transaction proves its control over a telephone by proving that it can receive
 traffic sent to that telephone number over the PSTN. The ACME server challenges
-the client to dereference a URI containing a token that is sent to the client
+the client to dereference a URL containing a token that is sent to the client
 over SMS. Typically that token will be embedded in a URL that the end user will
-dereference in order to be guided to a web resource that will enable account
-creation with the CA.
-
+visit in order to be guided to a web resource that will enable account creation
+with the CA.  By allowing a user action to complete the challenge, this
+validation method supports the use of ACME with SMS endpoints that do not
+support automated response to challenges.
 
 type (required, string):
-: The string "sms-00"
-
-token (required, string):
-: A random value that uniquely identifies the challenge. This value MUST have at
-least 128 bits of entropy, in order to prevent an attacker from guessing it. It
-MUST NOT contain any characters outside the URL-safe Base64 alphabet and MUST
-NOT contain any padding characters ("=").
+: The string "sms-link-00"
 
 ~~~~~
 {
-  "type": "sms-00",
-  "token": "evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA"
+  "type": "sms-link-00",
 }
 ~~~~~
 
-A client responds to this challenge by dereferencing the URI chosen by the ACME
-server. For this challenge, this may lead to an out-of-band requirement for the
-client to create a user account through human interaction.
+A client's response to this challenge simply acknowledges that it is ready to
+receive the validation SMS from the server.
 
-[[ RLB: The flow is not quite right here.  I think what you want is a 2-RTT
-interaction: (1) An ACME RTT where the client says "I want to do the SMS
-challenge", then (2) an SMS/web RTT where the server sends the SMS and the
-client clicks the link ]]
+~~~~~
+{
+  "type": "sms-link-00",
+}
+~~~~~
 
-[[ RLB: I think you're probably going to want at least two types of SMS
-challenge and one authority-based challenge.  Given that, you might choose a
-more expressive name, say "sms-link-00" ]]
+On receiving a response, the server sends an SMS message to the TN being
+validated containing a URL that the client must have a user access in order to
+complete the challenge.  This URL is intended to be opened in a web browser so
+that the user can have an interaction with the CA; it is not sufficient for the
+client to simply send a GET request to the URL.
 
-[[ RLB: Note that I changed the version number above to "-00", since it's
-defined in version -00 of this draft. ]]
+To validate an "sms-link" challenge, the server verifies that a user has visited
+the URL included in the SMS message and completed any steps specified there.
 
-[[ RLB: I think you could just make the below sections into TODOs ]]
+[[ RLB: The below TODO sections both seem to be about empirical validation.  Do
+you also want to have a TODO for some sort of registry-supported validation,
+where the client presents a token from a registry to prove ownership of some
+resources? ]]
 
-### Advanced Routability Validation {#suppress}
+## Automated TN Routability Validation {#suppress}
 
 Future versions of this specification will explore ways to increase the
 automation of the challenge process when the client device has an application
 capable of creating ACME accounts and requesting certificates to be issued.
+This will likely follow the token / key-authorization pattern of the challenges
+defined for DNS names, except that the token and key authoriation will be passed
+in SMS instead of HTTP, TLS, or DNS.
 
-### Telephone Number Range Validation {#range}
+## Telephone Number Range Validation {#range}
 
 Future versions of this specification will explore ways to validate bulk
 allocations of telephone numbers such as those used by IP PBXs.
