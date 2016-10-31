@@ -72,6 +72,8 @@ identifier type for telephone numbers ("tn"). This represents a telephone
 number, specifically a number of the type that is specified in the TN
 Authorization List certificate extension of {{I-D.ietf-stir-certificates}}.
 
+[[ RLB: This seems under-defined.  Do you mean the E164Number format? ]]
+
 ~~~~~
 {
   "status": "valid",
@@ -84,7 +86,7 @@ Authorization List certificate extension of {{I-D.ietf-stir-certificates}}.
 
   "challenges": [
     {
-      "type": "sms-01",
+      "type": "sms-00",
       "status": "valid",
       "validated": "2014-12-01T12:05:00Z",
       "keyAuthorization": "SXQe-2XODaDxNR...vb29HhjjLPSggwiE"
@@ -156,6 +158,20 @@ NOT contain any padding characters ("=").
 A client responds to this challenge by dereferencing the URI chosen by the ACME
 server. For this challenge, this may lead to an out-of-band requirement for the
 client to create a user account through human interaction.
+
+[[ RLB: The flow is not quite right here.  I think what you want is a 2-RTT
+interaction: (1) An ACME RTT where the client says "I want to do the SMS
+challenge", then (2) an SMS/web RTT where the server sends the SMS and the
+client clicks the link ]]
+
+[[ RLB: I think you're probably going to want at least two types of SMS
+challenge and one authority-based challenge.  Given that, you might choose a
+more expressive name, say "sms-link-00" ]]
+
+[[ RLB: Note that I changed the version number above to "-00", since it's
+defined in version -00 of this draft. ]]
+
+[[ RLB: I think you could just make the below sections into TODOs ]]
 
 ### Advanced Routability Validation {#suppress}
 
